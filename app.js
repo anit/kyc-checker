@@ -110,57 +110,32 @@ async function showCamera() {
     return;
   }
 
-  document.getElementById('btn-capture').addEventListener('click', async () => {
+  document.getElementById('btn-capture').addEventListener('click', () => {
     const canvas = document.createElement('canvas');
     canvas.width  = video.videoWidth;
     canvas.height = video.videoHeight;
     canvas.getContext('2d').drawImage(video, 0, 0);
 
-    // Give location up to 3 s more if not yet resolved
-    const timeout = new Promise(r => setTimeout(() => r(null), 3000));
-    const position = await Promise.race([locationPromise, timeout]);
-
     closeOverlay();
 
     const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
 
-    // ── GPS location ──────────────────────────────────────────
-    let locationSection = null;
-    if (position) {
-      const c = position.coords;
-      locationSection = {};
-      locationSection['Latitude']  = `${c.latitude.toFixed(6)}°`;
-      locationSection['Longitude'] = `${c.longitude.toFixed(6)}°`;
-      locationSection['Accuracy']  = `±${Math.round(c.accuracy)} m`;
-      if (c.altitude      != null) locationSection['Altitude']       = `${Math.round(c.altitude)} m`;
-      if (c.altitudeAccuracy != null) locationSection['Alt. accuracy'] = `±${Math.round(c.altitudeAccuracy)} m`;
-      if (c.heading       != null) locationSection['Heading']        = `${Math.round(c.heading)}°`;
-      if (c.speed         != null) locationSection['Speed']          = `${c.speed.toFixed(1)} m/s`;
-      locationSection['Fix time'] = new Date(position.timestamp).toLocaleTimeString();
-    }
-
-    showPreview(dataUrl, locationSection);
+    // Show preview immediately, fill location when it arrives
+    showPreview(dataUrl, locationPromise);
   });
 }
 
 // ── Preview (review captured photo) ──────────────────────────
-function showPreview(dataUrl, location) {
-  const locationHtml = location
-    ? `<div class="location-row">
-         <span class="location-pin">&#9679;</span>
-         <span>${location['Latitude']}, ${location['Longitude']}
-           <span class="location-acc">${location['Accuracy']}</span>
-         </span>
-       </div>`
-    : `<div class="location-row location-denied">Location unavailable</div>`;
-
+function showPreview(dataUrl, locationPromise) {
   const screen = document.querySelector('.screen');
   const overlay = document.createElement('div');
   overlay.className = 'preview-overlay';
   overlay.innerHTML = `
     <img src="${dataUrl}" alt="Captured ID" class="preview-img" />
     <div class="preview-bottom">
-      <div class="preview-location">${locationHtml}</div>
+      <div id="location-display" class="location-row location-pending">
+        Fetching location…
+      </div>
       <div class="preview-actions">
         <button class="btn btn-secondary" id="btn-retake">Retake</button>
         <button class="btn btn-primary"   id="btn-use">Use Photo</button>
@@ -168,6 +143,24 @@ function showPreview(dataUrl, location) {
     </div>
   `;
   screen.appendChild(overlay);
+
+  // Update location row whenever the promise settles
+  locationPromise.then(position => {
+    const el = overlay.querySelector('#location-display');
+    if (!el) return; // overlay was already removed
+    if (position) {
+      const c = position.coords;
+      el.className = 'location-row';
+      el.innerHTML = `
+        <span class="location-pin">&#9679;</span>
+        <span>${c.latitude.toFixed(6)}°, ${c.longitude.toFixed(6)}°
+          <span class="location-acc">±${Math.round(c.accuracy)} m</span>
+        </span>`;
+    } else {
+      el.className = 'location-row location-denied';
+      el.textContent = 'Location unavailable';
+    }
+  });
 
   document.getElementById('btn-retake').addEventListener('click', () => {
     overlay.remove();

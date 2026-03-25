@@ -310,3 +310,8 @@ body {
   font-style: italic;
 }
 
+.location-pending {
+  color: rgba(255,255,255,.5);
+  font-style: italic;
+}
+
