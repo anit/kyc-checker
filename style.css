@@ -19,38 +19,54 @@
   --phone-h:    844px;
 }
 
+/* ── Mobile first: shell is invisible, screen fills viewport  */
 body {
   min-height: 100dvh;
-  background: var(--bg-page);
+  background: var(--bg-screen);
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: stretch;
   font-family: system-ui, -apple-system, sans-serif;
   color: var(--text-main);
-  /* on real mobile the body IS the phone */
 }
 
-/* ── Phone shell (desktop illusion) ──────────────────────── */
 .phone-shell {
-  width: var(--phone-w);
-  height: var(--phone-h);
-  background: #111;
-  border-radius: 44px;
-  padding: 12px;
-  box-shadow:
-    0 0 0 2px #333,
-    0 30px 80px rgba(0,0,0,.35);
+  flex: 1;
   display: flex;
   flex-direction: column;
 }
 
 .screen {
+  position: relative;
   flex: 1;
   background: var(--bg-screen);
-  border-radius: 34px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
+}
+
+/* ── Desktop only: show the phone shell illusion ─────────── */
+@media (hover: hover) and (pointer: fine) {
+  body {
+    background: var(--bg-page);
+    align-items: center;
+    justify-content: center;
+  }
+
+  .phone-shell {
+    flex: none;
+    width: var(--phone-w);
+    height: var(--phone-h);
+    background: #111;
+    border-radius: 44px;
+    padding: 12px;
+    box-shadow:
+      0 0 0 2px #333,
+      0 30px 80px rgba(0,0,0,.35);
+  }
+
+  .screen {
+    border-radius: 34px;
+  }
 }
 
 /* ── Header ───────────────────────────────────────────────── */
@@ -70,6 +86,7 @@ body {
 /* ── Main content area ────────────────────────────────────── */
 .app-main {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   padding: 24px 20px;
   display: flex;
@@ -137,13 +154,7 @@ body {
   cursor: not-allowed;
 }
 
-/* ── Camera view ─────────────────────────────────────────── */
-.camera-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
+/* ── Camera label (used on preview screen) ───────────────── */
 .camera-label {
   font-size: .82rem;
   color: var(--text-muted);
@@ -151,119 +162,151 @@ body {
   line-height: 1.5;
 }
 
-.viewfinder {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 10;
+/* ── Full-screen camera overlay ──────────────────────────── */
+.camera-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
   background: #000;
-  border-radius: var(--radius);
-  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
-.viewfinder video {
+.camera-overlay video {
+  flex: 1;
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+  min-height: 0;
 }
 
-/* corner bracket overlay */
-.vf-overlay {
+/* Cancel button top-right */
+.btn-cam-cancel {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0,0,0,.45);
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Bottom UI bar */
+.cam-ui {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16px 24px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  background: linear-gradient(transparent, rgba(0,0,0,.55));
+}
+
+.cam-status-fs {
+  font-size: .78rem;
+  color: rgba(255,255,255,.75);
+  text-align: center;
+}
+
+.cam-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Shutter button */
+.btn-shutter {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  border: 4px solid #fff;
+  background: rgba(255,255,255,.25);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform .1s, background .1s;
+}
+
+.btn-shutter:active {
+  transform: scale(.92);
+  background: rgba(255,255,255,.55);
+}
+
+.btn-shutter:disabled {
+  opacity: .35;
+  cursor: not-allowed;
+}
+
+/* ── Full-screen preview overlay ────────────────────────── */
+.preview-overlay {
   position: absolute;
   inset: 0;
-  pointer-events: none;
-}
-
-.vf-corner {
-  position: absolute;
-  width: 22px;
-  height: 22px;
-  border-color: #fff;
-  border-style: solid;
-  opacity: .85;
-}
-
-.vf-corner.tl { top: 10px;    left: 10px;   border-width: 3px 0 0 3px; border-radius: 4px 0 0 0; }
-.vf-corner.tr { top: 10px;    right: 10px;  border-width: 3px 3px 0 0; border-radius: 0 4px 0 0; }
-.vf-corner.bl { bottom: 10px; left: 10px;   border-width: 0 0 3px 3px; border-radius: 0 0 0 4px; }
-.vf-corner.br { bottom: 10px; right: 10px;  border-width: 0 3px 3px 0; border-radius: 0 0 4px 0; }
-
-.cam-status {
-  font-size: .78rem;
-  color: var(--text-muted);
-  text-align: center;
-  min-height: 1.2em;
-}
-
-/* ── Preview ─────────────────────────────────────────────── */
-.preview-wrap {
-  width: 100%;
-  border-radius: var(--radius);
-  overflow: hidden;
-  border: 1px solid var(--border);
+  z-index: 20;
   background: #000;
+  display: flex;
+  flex-direction: column;
 }
 
-.preview-img {
+.preview-overlay .preview-img {
+  flex: 1;
   width: 100%;
+  min-height: 0;
+  object-fit: contain;
   display: block;
 }
 
-/* ── Metadata table ──────────────────────────────────────── */
-.meta-card {
-  padding: 14px 16px;
+.preview-bottom {
+  flex-shrink: 0;
+  background: rgba(0,0,0,.72);
+  padding: 12px 16px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-.meta-heading {
-  font-size: .72rem;
-  font-weight: 700;
-  letter-spacing: .06em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  margin-bottom: 10px;
+.preview-actions {
+  display: flex;
+  gap: 10px;
 }
 
-.meta-table {
-  width: 100%;
-  border-collapse: collapse;
+.preview-actions .btn {
+  flex: 1;
+}
+
+/* ── Location row (inside preview-bottom) ────────────────── */
+.location-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: .8rem;
+  color: #fff;
 }
 
-.meta-table tr + tr td {
-  border-top: 1px solid var(--border);
+.location-pin {
+  color: #f87171;
+  font-size: .65rem;
+  flex-shrink: 0;
 }
 
-.meta-key {
-  color: var(--text-muted);
-  padding: 5px 8px 5px 0;
-  white-space: nowrap;
-  width: 40%;
+.location-acc {
+  margin-left: 6px;
+  font-size: .72rem;
+  color: rgba(255,255,255,.6);
 }
 
-.meta-val {
-  color: var(--text-main);
-  padding: 5px 0;
-  font-variant-numeric: tabular-nums;
-  word-break: break-all;
+.location-denied {
+  color: rgba(255,255,255,.5);
+  font-style: italic;
 }
 
-/* ── On actual mobile: fill the viewport ─────────────────── */
-@media (max-width: 430px) {
-  body {
-    background: var(--bg-screen);
-    align-items: stretch;
-  }
-
-  .phone-shell {
-    width: 100%;
-    height: 100dvh;
-    border-radius: 0;
-    padding: 0;
-    box-shadow: none;
-    background: transparent;
-  }
-
-  .screen {
-    border-radius: 0;
-  }
-}

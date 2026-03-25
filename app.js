@@ -25,6 +25,18 @@ function showHome() {
   document.getElementById('btn-start').addEventListener('click', showCamera);
 }
 
+// ── Geolocation ───────────────────────────────────────────────
+function requestLocation() {
+  return new Promise(resolve => {
+    if (!navigator.geolocation) return resolve(null);
+    navigator.geolocation.getCurrentPosition(
+      pos => resolve(pos),
+      ()  => resolve(null),
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+  });
+}
+
 // ── Camera ───────────────────────────────────────────────────
 let activeStream = null;
 
@@ -36,37 +48,44 @@ function stopStream() {
 }
 
 async function showCamera() {
-  render(`
-    <div class="camera-wrap">
-      <p class="camera-label">Hold your ID flat and well-lit inside the frame</p>
-      <div class="viewfinder">
-        <video id="preview" autoplay playsinline muted></video>
-        <div class="vf-overlay">
-          <div class="vf-corner tl"></div>
-          <div class="vf-corner tr"></div>
-          <div class="vf-corner bl"></div>
-          <div class="vf-corner br"></div>
-        </div>
+  // Camera overlay lives on .screen, not inside the scrollable app-main
+  const screen = document.querySelector('.screen');
+  const overlay = document.createElement('div');
+  overlay.className = 'camera-overlay';
+  overlay.innerHTML = `
+    <video id="preview" autoplay playsinline muted></video>
+    <div class="cam-ui">
+      <p id="cam-status" class="cam-status-fs">Starting camera…</p>
+      <div class="cam-actions">
+        <button class="btn-shutter" id="btn-capture" disabled></button>
       </div>
-      <p id="cam-status" class="cam-status">Starting camera…</p>
     </div>
+    <button class="btn-cam-cancel" id="btn-cancel">✕</button>
+  `;
+  screen.appendChild(overlay);
 
-    <button class="btn btn-primary" id="btn-capture" disabled>
-      Take Photo
-    </button>
-    <button class="btn btn-secondary" id="btn-cancel">
-      Cancel
-    </button>
-  `);
+  function closeOverlay() {
+    stopStream();
+    overlay.remove();
+  }
 
   document.getElementById('btn-cancel').addEventListener('click', () => {
-    stopStream();
+    closeOverlay();
     showHome();
   });
 
-  const video   = document.getElementById('preview');
-  const status  = document.getElementById('cam-status');
-  const btnCap  = document.getElementById('btn-capture');
+  const video  = document.getElementById('preview');
+  const status = document.getElementById('cam-status');
+  const btnCap = document.getElementById('btn-capture');
+
+  // Start location fetch early — likely resolved by shutter time
+  const locationPromise = requestLocation();
+
+  if (!navigator.mediaDevices?.getUserMedia) {
+    status.textContent = 'Camera not available — this page must be opened over HTTPS.';
+    status.style.color = '#ef4444';
+    return;
+  }
 
   try {
     const stream = await navigator.mediaDevices.getUserMedia({
@@ -91,86 +110,71 @@ async function showCamera() {
     return;
   }
 
-  document.getElementById('btn-capture').addEventListener('click', () => {
+  document.getElementById('btn-capture').addEventListener('click', async () => {
     const canvas = document.createElement('canvas');
     canvas.width  = video.videoWidth;
     canvas.height = video.videoHeight;
     canvas.getContext('2d').drawImage(video, 0, 0);
 
-    // Collect track settings BEFORE stopping the stream
-    const track        = activeStream.getVideoTracks()[0];
-    const trackSettings = track ? track.getSettings() : {};
-    const capturedAt   = new Date();
+    // Give location up to 3 s more if not yet resolved
+    const timeout = new Promise(r => setTimeout(() => r(null), 3000));
+    const position = await Promise.race([locationPromise, timeout]);
 
-    stopStream();
+    closeOverlay();
 
     const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
 
-    // Estimate file size: base64 payload → bytes
-    const base64Payload = dataUrl.split(',')[1] ?? '';
-    const sizeBytes     = Math.round(base64Payload.length * 0.75);
+    // ── GPS location ──────────────────────────────────────────
+    let locationSection = null;
+    if (position) {
+      const c = position.coords;
+      locationSection = {};
+      locationSection['Latitude']  = `${c.latitude.toFixed(6)}°`;
+      locationSection['Longitude'] = `${c.longitude.toFixed(6)}°`;
+      locationSection['Accuracy']  = `±${Math.round(c.accuracy)} m`;
+      if (c.altitude      != null) locationSection['Altitude']       = `${Math.round(c.altitude)} m`;
+      if (c.altitudeAccuracy != null) locationSection['Alt. accuracy'] = `±${Math.round(c.altitudeAccuracy)} m`;
+      if (c.heading       != null) locationSection['Heading']        = `${Math.round(c.heading)}°`;
+      if (c.speed         != null) locationSection['Speed']          = `${c.speed.toFixed(1)} m/s`;
+      locationSection['Fix time'] = new Date(position.timestamp).toLocaleTimeString();
+    }
 
-    const meta = {
-      'Captured at':   capturedAt.toLocaleString(),
-      'Resolution':    `${canvas.width} × ${canvas.height} px`,
-      'File size':     formatBytes(sizeBytes),
-      'Facing mode':   trackSettings.facingMode  ?? 'unknown',
-      'Frame rate':    trackSettings.frameRate != null
-                         ? `${Math.round(trackSettings.frameRate)} fps`
-                         : 'unknown',
-      'Aspect ratio':  trackSettings.aspectRatio != null
-                         ? trackSettings.aspectRatio.toFixed(2)
-                         : 'unknown',
-      'Device ID':     trackSettings.deviceId
-                         ? trackSettings.deviceId.slice(0, 16) + '…'
-                         : 'unknown',
-    };
-
-    showPreview(dataUrl, meta);
+    showPreview(dataUrl, locationSection);
   });
 }
 
-// ── Helpers ───────────────────────────────────────────────────
-function formatBytes(bytes) {
-  if (bytes < 1024)       return `${bytes} B`;
-  if (bytes < 1024 ** 2)  return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / 1024 ** 2).toFixed(2)} MB`;
-}
-
-function buildMetaTable(meta) {
-  const rows = Object.entries(meta).map(([k, v]) => `
-    <tr>
-      <td class="meta-key">${k}</td>
-      <td class="meta-val">${v}</td>
-    </tr>`).join('');
-  return `<table class="meta-table">${rows}</table>`;
-}
-
 // ── Preview (review captured photo) ──────────────────────────
-function showPreview(dataUrl, meta) {
-  render(`
-    <p class="camera-label">Review your photo — make sure it is clear and fully visible</p>
+function showPreview(dataUrl, location) {
+  const locationHtml = location
+    ? `<div class="location-row">
+         <span class="location-pin">&#9679;</span>
+         <span>${location['Latitude']}, ${location['Longitude']}
+           <span class="location-acc">${location['Accuracy']}</span>
+         </span>
+       </div>`
+    : `<div class="location-row location-denied">Location unavailable</div>`;
 
-    <div class="preview-wrap">
-      <img src="${dataUrl}" alt="Captured ID" class="preview-img" />
+  const screen = document.querySelector('.screen');
+  const overlay = document.createElement('div');
+  overlay.className = 'preview-overlay';
+  overlay.innerHTML = `
+    <img src="${dataUrl}" alt="Captured ID" class="preview-img" />
+    <div class="preview-bottom">
+      <div class="preview-location">${locationHtml}</div>
+      <div class="preview-actions">
+        <button class="btn btn-secondary" id="btn-retake">Retake</button>
+        <button class="btn btn-primary"   id="btn-use">Use Photo</button>
+      </div>
     </div>
+  `;
+  screen.appendChild(overlay);
 
-    <div class="card meta-card">
-      <p class="meta-heading">Photo metadata</p>
-      ${buildMetaTable(meta)}
-    </div>
-
-    <button class="btn btn-primary" id="btn-use">
-      Use This Photo
-    </button>
-    <button class="btn btn-secondary" id="btn-retake">
-      Retake
-    </button>
-  `);
-
-  document.getElementById('btn-retake').addEventListener('click', showCamera);
+  document.getElementById('btn-retake').addEventListener('click', () => {
+    overlay.remove();
+    showCamera();
+  });
   document.getElementById('btn-use').addEventListener('click', () => {
-    // next feature will consume dataUrl
+    overlay.remove();
     showHome();
   });
 }
