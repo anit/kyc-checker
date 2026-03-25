@@ -1,0 +1,269 @@
+/* ── Reset & base ─────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg-page:    #e8eaf0;
+  --bg-screen:  #ffffff;
+  --bg-header:  #1a1a2e;
+  --accent:     #4f46e5;
+  --accent-dim: #818cf8;
+  --text-main:  #111827;
+  --text-muted: #6b7280;
+  --border:     #e5e7eb;
+  --radius:     14px;
+  --phone-w:    390px;
+  --phone-h:    844px;
+}
+
+body {
+  min-height: 100dvh;
+  background: var(--bg-page);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: system-ui, -apple-system, sans-serif;
+  color: var(--text-main);
+  /* on real mobile the body IS the phone */
+}
+
+/* ── Phone shell (desktop illusion) ──────────────────────── */
+.phone-shell {
+  width: var(--phone-w);
+  height: var(--phone-h);
+  background: #111;
+  border-radius: 44px;
+  padding: 12px;
+  box-shadow:
+    0 0 0 2px #333,
+    0 30px 80px rgba(0,0,0,.35);
+  display: flex;
+  flex-direction: column;
+}
+
+.screen {
+  flex: 1;
+  background: var(--bg-screen);
+  border-radius: 34px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Header ───────────────────────────────────────────────── */
+.app-header {
+  background: var(--bg-header);
+  padding: 20px 24px 16px;
+  flex-shrink: 0;
+}
+
+.app-title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: .03em;
+}
+
+/* ── Main content area ────────────────────────────────────── */
+.app-main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── Footer ───────────────────────────────────────────────── */
+.app-footer {
+  padding: 12px;
+  text-align: center;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.footer-note {
+  font-size: .72rem;
+  color: var(--text-muted);
+  letter-spacing: .04em;
+}
+
+/* ── Utility card ─────────────────────────────────────────── */
+.card {
+  background: #f9fafb;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+
+/* ── Buttons ──────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px 20px;
+  border: none;
+  border-radius: var(--radius);
+  font-size: .95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity .15s, transform .1s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn:active {
+  opacity: .85;
+  transform: scale(.98);
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--accent);
+  border: 2px solid var(--accent);
+}
+
+.btn:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+}
+
+/* ── Camera view ─────────────────────────────────────────── */
+.camera-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.camera-label {
+  font-size: .82rem;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.5;
+}
+
+.viewfinder {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  background: #000;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.viewfinder video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* corner bracket overlay */
+.vf-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.vf-corner {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-color: #fff;
+  border-style: solid;
+  opacity: .85;
+}
+
+.vf-corner.tl { top: 10px;    left: 10px;   border-width: 3px 0 0 3px; border-radius: 4px 0 0 0; }
+.vf-corner.tr { top: 10px;    right: 10px;  border-width: 3px 3px 0 0; border-radius: 0 4px 0 0; }
+.vf-corner.bl { bottom: 10px; left: 10px;   border-width: 0 0 3px 3px; border-radius: 0 0 0 4px; }
+.vf-corner.br { bottom: 10px; right: 10px;  border-width: 0 3px 3px 0; border-radius: 0 0 4px 0; }
+
+.cam-status {
+  font-size: .78rem;
+  color: var(--text-muted);
+  text-align: center;
+  min-height: 1.2em;
+}
+
+/* ── Preview ─────────────────────────────────────────────── */
+.preview-wrap {
+  width: 100%;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: #000;
+}
+
+.preview-img {
+  width: 100%;
+  display: block;
+}
+
+/* ── Metadata table ──────────────────────────────────────── */
+.meta-card {
+  padding: 14px 16px;
+}
+
+.meta-heading {
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.meta-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .8rem;
+}
+
+.meta-table tr + tr td {
+  border-top: 1px solid var(--border);
+}
+
+.meta-key {
+  color: var(--text-muted);
+  padding: 5px 8px 5px 0;
+  white-space: nowrap;
+  width: 40%;
+}
+
+.meta-val {
+  color: var(--text-main);
+  padding: 5px 0;
+  font-variant-numeric: tabular-nums;
+  word-break: break-all;
+}
+
+/* ── On actual mobile: fill the viewport ─────────────────── */
+@media (max-width: 430px) {
+  body {
+    background: var(--bg-screen);
+    align-items: stretch;
+  }
+
+  .phone-shell {
+    width: 100%;
+    height: 100dvh;
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
+    background: transparent;
+  }
+
+  .screen {
+    border-radius: 0;
+  }
+}
