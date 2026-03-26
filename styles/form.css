@@ -1,0 +1,401 @@
+/* ── Form mode layout overrides ──────────────────────────── */
+.app-main--form {
+  padding: 0;
+  gap: 0;
+}
+
+form-shell {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ── Progress bar ────────────────────────────────────────── */
+.form-progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.form-progress-track {
+  flex: 1;
+  height: 4px;
+  background: var(--border);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.form-progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 99px;
+  transition: width .3s ease;
+}
+
+.form-progress-label {
+  font-size: .72rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  letter-spacing: .03em;
+}
+
+/* ── Step content area ───────────────────────────────────── */
+.step-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-height: 0;
+}
+
+.step-question {
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--text-main);
+}
+
+.step-help {
+  font-size: .875rem;
+  color: var(--text-muted);
+  line-height: 1.55;
+  margin-top: 8px;
+}
+
+.step-input-area {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+/* ── Text / Number / Tel / Datetime inputs ───────────────── */
+.step-input-area input[type="text"],
+.step-input-area input[type="number"],
+.step-input-area input[type="tel"],
+.step-input-area input[type="datetime-local"],
+.step-input-area textarea {
+  width: 100%;
+  padding: 16px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 1.05rem;
+  font-family: inherit;
+  color: var(--text-main);
+  background: #fff;
+  outline: none;
+  transition: border-color .15s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.step-input-area input:focus,
+.step-input-area textarea:focus {
+  border-color: var(--accent);
+}
+
+.step-input-area textarea {
+  resize: none;
+  overflow: hidden;
+  min-height: 120px;
+  line-height: 1.55;
+}
+
+/* ── Amount prefix wrapper ───────────────────────────────── */
+.amount-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.amount-prefix {
+  position: absolute;
+  left: 16px;
+  font-size: 1.05rem;
+  color: var(--text-muted);
+  pointer-events: none;
+  user-select: none;
+}
+
+.amount-wrapper input {
+  padding-left: 30px !important;
+}
+
+/* ── Selection options ───────────────────────────────────── */
+.selection-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.selection-option {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.selection-option:active {
+  background: #f3f4f6;
+}
+
+.selection-option.selected {
+  border-color: var(--accent);
+  background: #eef2ff;
+}
+
+.selection-option input {
+  display: none;
+}
+
+.selection-indicator {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color .15s, background .15s;
+}
+
+.selection-option.selected .selection-indicator {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.selection-indicator::after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #fff;
+  opacity: 0;
+  transition: opacity .15s;
+}
+
+.selection-option.selected .selection-indicator::after {
+  opacity: 1;
+}
+
+/* Checkbox variant (maxSelect > 1) */
+.selection-option.multi .selection-indicator {
+  border-radius: 6px;
+}
+
+.selection-option.multi.selected .selection-indicator::after {
+  width: 11px;
+  height: 7px;
+  border-radius: 0;
+  background: transparent;
+  border-left: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+  transform: rotate(-45deg) translateY(-2px);
+}
+
+.selection-label {
+  font-size: 1rem;
+  color: var(--text-main);
+  line-height: 1.3;
+}
+
+/* ── Upload zone ─────────────────────────────────────────── */
+.upload-zone {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 28px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.upload-zone:hover {
+  border-color: var(--accent);
+  background: #f9fafb;
+}
+
+.upload-icon {
+  font-size: 2rem;
+  color: var(--text-muted);
+}
+
+.upload-label {
+  font-size: .9rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.upload-label strong {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.upload-filename {
+  font-size: .85rem;
+  color: var(--text-main);
+  font-weight: 600;
+  word-break: break-all;
+}
+
+.upload-zone.has-file {
+  border-color: var(--accent);
+  background: #eef2ff;
+}
+
+/* ── Photo step ──────────────────────────────────────────── */
+
+/* Make the custom element fill the step-area height */
+step-photo {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+step-photo .step-input-area {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Preview container — grows to fill remaining space */
+#photo-preview {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.photo-prompt {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 28px 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.photo-icon {
+  font-size: 2.5rem;
+  color: var(--text-muted);
+}
+
+.photo-thumb-wrap {
+  flex: 1;
+  min-height: 0;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 2px solid var(--accent);
+  background: #000;
+}
+
+.photo-thumb-wrap img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+}
+
+.photo-retake-btn {
+  flex-shrink: 0;
+}
+
+/* ── Form nav bar ────────────────────────────────────────── */
+.form-nav {
+  display: flex;
+  gap: 10px;
+  padding: 14px 20px 20px;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.form-nav .btn {
+  flex: 1;
+}
+
+.form-nav .btn-back-hidden {
+  visibility: hidden;
+}
+
+/* ── Validation error ────────────────────────────────────── */
+.form-error {
+  margin: 0 20px 12px;
+  padding: 10px 14px;
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  border-radius: 8px;
+  font-size: .85rem;
+  color: #dc2626;
+  line-height: 1.4;
+}
+
+/* ── Success screen ──────────────────────────────────────── */
+.success-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 24px;
+  gap: 16px;
+  flex: 1;
+}
+
+.success-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #d1fae5;
+  color: #059669;
+  font-size: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.success-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.success-body {
+  font-size: .9rem;
+  color: var(--text-muted);
+  line-height: 1.55;
+  max-width: 280px;
+}
+
+.success-actions {
+  width: 100%;
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.btn-download-generating {
+  opacity: .7;
+  cursor: wait;
+}
