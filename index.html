@@ -4,7 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>ID Verifier</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="styles/base.css" />
+  <link rel="stylesheet" href="styles/components.css" />
+  <link rel="stylesheet" href="styles/camera.css" />
 </head>
 <body>
   <div class="phone-shell">
@@ -14,16 +16,15 @@
         <h1 class="app-title">ID Verifier</h1>
       </header>
 
-      <main class="app-main" id="app">
-        <!-- views injected here by app.js -->
-      </main>
+      <main class="app-main" id="app"></main>
 
       <footer class="app-footer">
         <p class="footer-note">Secure &middot; On-device only</p>
       </footer>
+
     </div>
   </div>
 
-  <script src="app.js"></script>
+  <script type="module" src="src/app.js"></script>
 </body>
 </html>
