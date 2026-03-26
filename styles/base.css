@@ -1,0 +1,111 @@
+/* ── Reset ────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Design tokens ───────────────────────────────────────── */
+:root {
+  --bg-page:    #e8eaf0;
+  --bg-screen:  #ffffff;
+  --bg-header:  #1a1a2e;
+  --accent:     #4f46e5;
+  --accent-dim: #818cf8;
+  --text-main:  #111827;
+  --text-muted: #6b7280;
+  --border:     #e5e7eb;
+  --radius:     14px;
+  --phone-w:    390px;
+  --phone-h:    844px;
+}
+
+/* ── Body — mobile first ─────────────────────────────────── */
+body {
+  min-height: 100dvh;
+  background: var(--bg-screen);
+  display: flex;
+  align-items: stretch;
+  font-family: system-ui, -apple-system, sans-serif;
+  color: var(--text-main);
+}
+
+/* ── Phone shell — passthrough on mobile ─────────────────── */
+.phone-shell {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.screen {
+  position: relative;
+  flex: 1;
+  background: var(--bg-screen);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Desktop: render the phone-frame illusion ────────────── */
+@media (hover: hover) and (pointer: fine) {
+  body {
+    background: var(--bg-page);
+    align-items: center;
+    justify-content: center;
+  }
+
+  .phone-shell {
+    flex: none;
+    width: var(--phone-w);
+    height: var(--phone-h);
+    background: #111;
+    border-radius: 44px;
+    padding: 12px;
+    box-shadow:
+      0 0 0 2px #333,
+      0 30px 80px rgba(0,0,0,.35);
+  }
+
+  .screen {
+    border-radius: 34px;
+  }
+}
+
+/* ── Header ──────────────────────────────────────────────── */
+.app-header {
+  background: var(--bg-header);
+  padding: 20px 24px 16px;
+  flex-shrink: 0;
+}
+
+.app-title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: .03em;
+}
+
+/* ── Main content area ───────────────────────────────────── */
+.app-main {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── Footer ──────────────────────────────────────────────── */
+.app-footer {
+  padding: 12px;
+  text-align: center;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.footer-note {
+  font-size: .72rem;
+  color: var(--text-muted);
+  letter-spacing: .04em;
+}

@@ -1,0 +1,45 @@
+/* ── Card ────────────────────────────────────────────────── */
+.card {
+  background: #f9fafb;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+
+/* ── Buttons ─────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px 20px;
+  border: none;
+  border-radius: var(--radius);
+  font-size: .95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity .15s, transform .1s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn:active {
+  opacity: .85;
+  transform: scale(.98);
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--accent);
+  border: 2px solid var(--accent);
+}
+
+.btn:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+}
