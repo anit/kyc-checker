@@ -1,11 +1,20 @@
 'use strict';
 
+import { loadConfig } from './config-loader.js';
+import { FormRunner  } from './form-runner.js';
 import './components/home-screen.js';
 import './components/camera-overlay.js';
 import './components/preview-overlay.js';
 
 const appEl  = document.getElementById('app');
 const screen = document.querySelector('.screen');
+
+const cfg = loadConfig();
+if (cfg) {
+  new FormRunner(appEl, screen, cfg).start();
+} else {
+  showHome();
+}
 
 function showHome() {
   const el = document.createElement('home-screen');
@@ -26,5 +35,3 @@ function showPreview({ dataUrl, locationPromise }) {
   pv.addEventListener('use',    () => { pv.remove(); showHome(); });
   screen.appendChild(pv);
 }
-
-showHome();
